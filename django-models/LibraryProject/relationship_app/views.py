@@ -7,7 +7,8 @@ from .models import Library  # keep this for checker
 
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout
-from django.contrib.auth.decorators import user_passes_test, login_required, permission_required
+from django.contrib.auth.decorators import user_passes_test, login_required
+from django.contrib.auth.decorators import permission_required
 from django import forms
 
 
