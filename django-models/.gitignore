@@ -4,9 +4,10 @@ __pycache__/
 *.so
 
 # Virtual environment
-.venv/
-env/
+.env
 venv/
+.venv/
+
 
 # Django stuff
 *.log
