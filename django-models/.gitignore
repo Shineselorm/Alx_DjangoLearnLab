@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environment
+.venv/
+env/
+venv/
+
+# Django stuff
+*.log
+*.pot
+*.pyc
+*.sqlite3
+db.sqlite3
+
+# Migrations (keep if you want to share schema, otherwise ignore them)
+*/migrations/__pycache__/
+*/migrations/*.pyc
+*/migrations/*.py
+
+# IDE/editor settings
+.vscode/
+.idea/
+*.swp
+
+# Mac system files
+.DS_Store
+
+# Byte-compiled / distribution / packaging
+build/
+dist/
+*.egg-info/
