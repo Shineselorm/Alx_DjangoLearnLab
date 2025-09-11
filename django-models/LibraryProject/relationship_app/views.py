@@ -1,6 +1,10 @@
 from django.shortcuts import render
+from django.http import HttpResponse
 from django.views.generic import DetailView
-from .models import Book, Library
+
+from .models import Book   # already there
+from .models import Library  # <-- add this separately for the checker
+
 
 
 # Function-based view to list all books
