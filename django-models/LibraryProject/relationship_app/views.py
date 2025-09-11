@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.views.generic.detail import DetailView
 
-from .models import Book   # already there
-from .models import Library  # <-- add this separately for the checker
+from .models import Book
+from .models import Library  # keep this for checker
 
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout
@@ -22,17 +22,18 @@ class LibraryDetailView(DetailView):
     context_object_name = 'library'
 
 
-# Registration view
-def register_view(request):
+# ✅ Registration view (only keep this one)
+def register(request):
     if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)  # log in new user automatically
-            return redirect('list_books')  # redirect after register
+            return redirect("list_books")  # redirect after register
     else:
         form = UserCreationForm()
-    return render(request, 'relationship_app/register.html', {'form': form})
+    return render(request, "relationship_app/register.html", {"form": form})
+
 
 # Login view
 def login_view(request):
@@ -45,6 +46,7 @@ def login_view(request):
     else:
         form = AuthenticationForm()
     return render(request, 'relationship_app/login.html', {'form': form})
+
 
 # Logout view
 def logout_view(request):
