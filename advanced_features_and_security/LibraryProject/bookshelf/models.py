@@ -85,6 +85,12 @@ class Book(models.Model):
         ordering = ['-created_at']
         verbose_name = 'Book'
         verbose_name_plural = 'Books'
+        permissions = [
+            ("can_view", "Can view books"),
+            ("can_create", "Can create books"),
+            ("can_edit", "Can edit books"),
+            ("can_delete", "Can delete books"),
+        ]
 
     def __str__(self):
         return f"{self.title} by {self.author}"
@@ -114,6 +120,12 @@ class BookReview(models.Model):
         unique_together = ['book', 'reviewer']  # One review per user per book
         verbose_name = 'Book Review'
         verbose_name_plural = 'Book Reviews'
+        permissions = [
+            ("can_view", "Can view book reviews"),
+            ("can_create", "Can create book reviews"),
+            ("can_edit", "Can edit book reviews"),
+            ("can_delete", "Can delete book reviews"),
+        ]
 
     def __str__(self):
         return f"{self.reviewer.email}'s review of {self.book.title}"
@@ -135,6 +147,12 @@ class ReadingList(models.Model):
         ordering = ['-created_at']
         verbose_name = 'Reading List'
         verbose_name_plural = 'Reading Lists'
+        permissions = [
+            ("can_view", "Can view reading lists"),
+            ("can_create", "Can create reading lists"),
+            ("can_edit", "Can edit reading lists"),
+            ("can_delete", "Can delete reading lists"),
+        ]
 
     def __str__(self):
         return f"{self.owner.email}'s {self.name}"
