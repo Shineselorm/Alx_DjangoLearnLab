@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'accounts',
+    'LibraryProject.bookshelf',
     'LibraryProject.relationship_app',
     'django.contrib.admin',
     'django.contrib.auth',

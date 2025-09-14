@@ -20,6 +20,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('', include('LibraryProject.relationship_app.urls')),
+    path('bookshelf/', include('LibraryProject.bookshelf.urls')),
 ]
 
 # Serve media files during development
