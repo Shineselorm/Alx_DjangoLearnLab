@@ -1,0 +1,103 @@
+{% extends 'bookshelf/base.html' %}
+{% load static %}
+
+{% block title %}Book List - Secure Bookshelf{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Book Collection</h2>
+        
+        <!-- Search Form with CSRF Protection -->
+        <div class="form-security">
+            <h4>Search Books</h4>
+            <form method="get" action="{% url 'bookshelf:book_list' %}">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-8">
+                        <input type="text" 
+                               name="search" 
+                               class="form-control" 
+                               placeholder="Search books..." 
+                               value="{{ request.GET.search|escape }}"
+                               maxlength="100">
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                        <a href="{% url 'bookshelf:book_list' %}" class="btn btn-secondary">Clear</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Action Buttons (Permission-based) -->
+        <div class="mb-3">
+            {% if perms.LibraryProject.bookshelf.can_view %}
+                <span class="badge bg-success">View Permission: ✓</span>
+            {% endif %}
+            {% if perms.LibraryProject.bookshelf.can_create %}
+                <a href="{% url 'bookshelf:add_book' %}" class="btn btn-success">Add New Book</a>
+            {% endif %}
+        </div>
+
+        <!-- Books List -->
+        {% if books %}
+            <div class="row">
+                {% for book in books %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ book.title|escape }}</h5>
+                                <p class="card-text">
+                                    <strong>Author:</strong> {{ book.author|escape }}<br>
+                                    <strong>ISBN:</strong> {{ book.isbn|escape }}<br>
+                                    <strong>Published:</strong> {{ book.publication_date|escape }}<br>
+                                    <strong>Added by:</strong> {{ book.added_by.email|escape }}
+                                </p>
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'bookshelf:book_detail' book.pk %}" 
+                                       class="btn btn-primary btn-sm">View Details</a>
+                                    
+                                    {% if perms.LibraryProject.bookshelf.can_edit %}
+                                        <a href="{% url 'bookshelf:edit_book' book.pk %}" 
+                                           class="btn btn-warning btn-sm">Edit</a>
+                                    {% endif %}
+                                    
+                                    {% if perms.LibraryProject.bookshelf.can_delete %}
+                                        <a href="{% url 'bookshelf:delete_book' book.pk %}" 
+                                           class="btn btn-danger btn-sm">Delete</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                <h4>No books found</h4>
+                <p>{% if request.GET.search %}No books match your search criteria.{% else %}The library is empty.{% endif %}</p>
+                {% if perms.LibraryProject.bookshelf.can_create %}
+                    <a href="{% url 'bookshelf:add_book' %}" class="btn btn-success">Add the first book</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Security Information -->
+<div class="row mt-5">
+    <div class="col-md-12">
+        <div class="alert alert-security">
+            <h5>Security Features Implemented:</h5>
+            <ul>
+                <li><strong>CSRF Protection:</strong> All forms include CSRF tokens</li>
+                <li><strong>XSS Prevention:</strong> All user input is escaped using Django's escape filter</li>
+                <li><strong>Permission-based Access:</strong> Buttons and links are conditionally displayed based on user permissions</li>
+                <li><strong>Input Validation:</strong> Search queries are validated and sanitized</li>
+                <li><strong>Secure Headers:</strong> Security headers are set via Django settings</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

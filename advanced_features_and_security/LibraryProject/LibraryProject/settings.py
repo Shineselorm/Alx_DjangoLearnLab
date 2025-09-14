@@ -133,3 +133,105 @@ AUTH_USER_MODEL = 'LibraryProject.bookshelf.CustomUser'
 
 LOGIN_REDIRECT_URL = 'list_books'
 LOGOUT_REDIRECT_URL = 'login'
+
+# =============================================================================
+# SECURITY SETTINGS - Django Security Best Practices Implementation
+# =============================================================================
+
+# Browser Security Headers
+SECURE_BROWSER_XSS_FILTER = True  # Enable XSS filtering in browser
+X_FRAME_OPTIONS = 'DENY'  # Prevent clickjacking attacks
+SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevent MIME type sniffing
+
+# HTTPS Security Settings
+SECURE_SSL_REDIRECT = False  # Set to True in production with HTTPS
+SECURE_HSTS_SECONDS = 31536000  # HTTP Strict Transport Security (1 year)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# Cookie Security
+CSRF_COOKIE_SECURE = True  # Send CSRF cookie only over HTTPS
+SESSION_COOKIE_SECURE = True  # Send session cookie only over HTTPS
+CSRF_COOKIE_HTTPONLY = True  # Prevent JavaScript access to CSRF cookie
+SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to session cookie
+CSRF_COOKIE_SAMESITE = 'Strict'  # CSRF cookie SameSite attribute
+SESSION_COOKIE_SAMESITE = 'Strict'  # Session cookie SameSite attribute
+
+# Additional Security Headers
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+
+# Content Security Policy (CSP) - Basic implementation
+# Note: In production, configure more restrictive policies
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'")  # Allow inline scripts for Django admin
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")  # Allow inline styles for Django admin
+CSP_IMG_SRC = ("'self'", "data:", "https:")
+CSP_FONT_SRC = ("'self'",)
+CSP_CONNECT_SRC = ("'self'",)
+CSP_FRAME_ANCESTORS = ("'none'",)
+
+# Password Security
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 8,  # Minimum password length
+        }
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+# Session Security
+SESSION_COOKIE_AGE = 3600  # 1 hour session timeout
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Clear session on browser close
+SESSION_SAVE_EVERY_REQUEST = True  # Save session on every request
+
+# File Upload Security
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB max file size
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB max data size
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000  # Limit number of form fields
+
+# Logging Configuration for Security Events
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'security_file': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': 'security.log',
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django.security': {
+            'handlers': ['security_file', 'console'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+        'security': {
+            'handlers': ['security_file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}

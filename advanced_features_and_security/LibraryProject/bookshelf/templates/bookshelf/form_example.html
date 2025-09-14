@@ -1,0 +1,181 @@
+{% extends 'bookshelf/base.html' %}
+
+{% block title %}Secure Form Example - Secure Bookshelf{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h2>Secure Form Examples</h2>
+        
+        <!-- Book Form with CSRF Protection -->
+        <div class="form-security">
+            <h4>Add New Book (Secure Form)</h4>
+            <form method="post" action="{% url 'bookshelf:add_book' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="title" class="form-label">Book Title</label>
+                    <input type="text" 
+                           class="form-control" 
+                           id="title" 
+                           name="title" 
+                           required 
+                           maxlength="200"
+                           placeholder="Enter book title">
+                    <div class="form-text">Title must be between 2 and 200 characters.</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="author" class="form-label">Author</label>
+                    <input type="text" 
+                           class="form-control" 
+                           id="author" 
+                           name="author" 
+                           required 
+                           maxlength="100"
+                           placeholder="Enter author name">
+                    <div class="form-text">Author name must be between 2 and 100 characters.</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="isbn" class="form-label">ISBN</label>
+                    <input type="text" 
+                           class="form-control" 
+                           id="isbn" 
+                           name="isbn" 
+                           required 
+                           maxlength="13"
+                           pattern="[0-9]{13}"
+                           placeholder="Enter 13-digit ISBN">
+                    <div class="form-text">ISBN must be exactly 13 digits.</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="publication_date" class="form-label">Publication Date</label>
+                    <input type="date" 
+                           class="form-control" 
+                           id="publication_date" 
+                           name="publication_date" 
+                           required>
+                    <div class="form-text">Select the publication date (cannot be in the future).</div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Add Book</button>
+            </form>
+        </div>
+
+        <!-- Review Form with CSRF Protection -->
+        <div class="form-security">
+            <h4>Add Book Review (Secure Form)</h4>
+            <form method="post" action="{% url 'bookshelf:add_review' book_pk=1 %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="rating" class="form-label">Rating</label>
+                    <select class="form-control" id="rating" name="rating" required>
+                        <option value="">Select rating</option>
+                        <option value="1">1 Star - Poor</option>
+                        <option value="2">2 Stars - Fair</option>
+                        <option value="3">3 Stars - Good</option>
+                        <option value="4">4 Stars - Very Good</option>
+                        <option value="5">5 Stars - Excellent</option>
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="review_text" class="form-label">Review Text</label>
+                    <textarea class="form-control" 
+                              id="review_text" 
+                              name="review_text" 
+                              rows="5" 
+                              required 
+                              maxlength="2000"
+                              placeholder="Write your review here..."></textarea>
+                    <div class="form-text">Review must be between 10 and 2000 characters.</div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Submit Review</button>
+            </form>
+        </div>
+
+        <!-- Reading List Form with CSRF Protection -->
+        <div class="form-security">
+            <h4>Create Reading List (Secure Form)</h4>
+            <form method="post" action="{% url 'bookshelf:create_reading_list' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="name" class="form-label">Reading List Name</label>
+                    <input type="text" 
+                           class="form-control" 
+                           id="name" 
+                           name="name" 
+                           required 
+                           maxlength="100"
+                           placeholder="Enter reading list name">
+                    <div class="form-text">Name must be between 2 and 100 characters.</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" 
+                              id="description" 
+                              name="description" 
+                              rows="3" 
+                              maxlength="500"
+                              placeholder="Describe your reading list..."></textarea>
+                    <div class="form-text">Optional description (maximum 500 characters).</div>
+                </div>
+                
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="is_public" name="is_public">
+                    <label class="form-check-label" for="is_public">
+                        Make this list public
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Create Reading List</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="alert alert-info">
+            <h5>Security Features Demonstrated:</h5>
+            <ul>
+                <li><strong>CSRF Tokens:</strong> All forms include {% csrf_token %}</li>
+                <li><strong>Input Validation:</strong> HTML5 validation attributes</li>
+                <li><strong>Length Limits:</strong> maxlength attributes prevent buffer overflow</li>
+                <li><strong>Pattern Validation:</strong> ISBN pattern ensures correct format</li>
+                <li><strong>Required Fields:</strong> Essential fields are marked as required</li>
+                <li><strong>Type Validation:</strong> Date inputs ensure proper data types</li>
+            </ul>
+        </div>
+        
+        <div class="alert alert-warning">
+            <h5>Server-side Security:</h5>
+            <ul>
+                <li>Django forms validate all input</li>
+                <li>XSS prevention through escaping</li>
+                <li>SQL injection prevention via ORM</li>
+                <li>Permission-based access control</li>
+                <li>Secure cookie handling</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- CSRF Token Information -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="alert alert-secondary">
+            <h5>CSRF Protection Details:</h5>
+            <p>The <code>{% csrf_token %}</code> template tag generates a unique token for each form that:</p>
+            <ul>
+                <li>Prevents Cross-Site Request Forgery (CSRF) attacks</li>
+                <li>Is automatically validated by Django's CSRF middleware</li>
+                <li>Changes on each page load for enhanced security</li>
+                <li>Is tied to the user's session</li>
+            </ul>
+            <p><strong>Note:</strong> All forms in this application include CSRF tokens for security.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

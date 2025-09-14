@@ -15,4 +15,6 @@ urlpatterns = [
     path('public-reading-lists/', views.public_reading_lists, name='public_reading_lists'),
     path('review/<int:pk>/edit/', views.edit_review, name='edit_review'),
     path('review/<int:pk>/delete/', views.delete_review, name='delete_review'),
+    path('forms/', views.form_example, name='form_example'),
+    path('api/secure/', views.secure_api_endpoint, name='secure_api'),
 ]
