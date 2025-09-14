@@ -11,7 +11,8 @@ from django.utils.html import escape
 from django.core.paginator import Paginator
 import logging
 from .models import Book, BookReview, ReadingList, UserProfile
-from .forms import SecureBookForm, SecureReviewForm, SecureReadingListForm, SecureSearchForm, ExampleForm
+from .forms import SecureBookForm, SecureReviewForm, SecureReadingListForm, SecureSearchForm
+from .forms import ExampleForm
 
 # Security logger
 security_logger = logging.getLogger('security')

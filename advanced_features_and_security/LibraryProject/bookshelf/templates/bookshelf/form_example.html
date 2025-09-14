@@ -134,6 +134,16 @@
                 <button type="submit" class="btn btn-primary">Create Reading List</button>
             </form>
         </div>
+
+        <!-- Example Form with CSRF Protection -->
+        <div class="form-security">
+            <h4>Example Form (Secure Form)</h4>
+            <form method="post" action="#">
+                {% csrf_token %}
+                {{ example_form.as_p }}
+                <button type="submit" class="btn btn-primary">Submit Example Form</button>
+            </form>
+        </div>
     </div>
     
     <div class="col-md-4">
