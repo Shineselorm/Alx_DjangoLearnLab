@@ -468,3 +468,159 @@ class SecureSearchForm(forms.Form):
             raise ValidationError(_('Invalid search type selected.'))
         
         return search_type
+
+
+class ExampleForm(forms.Form):
+    """
+    Example form demonstrating secure form practices.
+    This form showcases input validation, CSRF protection, and XSS prevention.
+    """
+    
+    name = forms.CharField(
+        max_length=50,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your name',
+            'maxlength': '50',
+        }),
+        label=_('Name'),
+        help_text=_('Enter your full name (maximum 50 characters)'),
+    )
+    
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your email',
+        }),
+        label=_('Email Address'),
+        help_text=_('Enter a valid email address'),
+    )
+    
+    message = forms.CharField(
+        max_length=500,
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 4,
+            'placeholder': 'Enter your message...',
+            'maxlength': '500',
+        }),
+        label=_('Message'),
+        help_text=_('Enter your message (maximum 500 characters)'),
+    )
+    
+    age = forms.IntegerField(
+        min_value=1,
+        max_value=120,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your age',
+            'min': '1',
+            'max': '120',
+        }),
+        label=_('Age'),
+        help_text=_('Enter your age (between 1 and 120)'),
+    )
+    
+    def clean_name(self):
+        """
+        Sanitize and validate name field.
+        Prevents XSS attacks through proper escaping.
+        """
+        name = self.cleaned_data.get('name')
+        if not name:
+            raise ValidationError(_('Name is required.'))
+        
+        # Remove any HTML tags and escape special characters
+        name = escape(name.strip())
+        
+        # Validate length
+        if len(name) < 2:
+            raise ValidationError(_('Name must be at least 2 characters long.'))
+        
+        # Check for valid characters only (letters, spaces, hyphens, apostrophes)
+        import re
+        if not re.match(r"^[a-zA-Z\s\-']+$", name):
+            raise ValidationError(_('Name can only contain letters, spaces, hyphens, and apostrophes.'))
+        
+        return name
+    
+    def clean_email(self):
+        """
+        Validate email format and check for common issues.
+        """
+        email = self.cleaned_data.get('email')
+        if not email:
+            raise ValidationError(_('Email is required.'))
+        
+        # Basic email validation (Django's EmailField already handles this)
+        # Additional checks for common email issues
+        email = email.lower().strip()
+        
+        # Check for suspicious patterns
+        suspicious_patterns = ['test@test', 'admin@admin', 'user@user']
+        for pattern in suspicious_patterns:
+            if pattern in email:
+                raise ValidationError(_('Please enter a valid email address.'))
+        
+        return email
+    
+    def clean_message(self):
+        """
+        Sanitize and validate message field.
+        Prevents XSS attacks and ensures appropriate content.
+        """
+        message = self.cleaned_data.get('message')
+        if not message:
+            raise ValidationError(_('Message is required.'))
+        
+        # Remove any HTML tags and escape special characters
+        message = escape(message.strip())
+        
+        # Validate length
+        if len(message) < 10:
+            raise ValidationError(_('Message must be at least 10 characters long.'))
+        
+        # Basic content validation
+        inappropriate_words = ['spam', 'fake', 'scam', 'hack']
+        message_lower = message.lower()
+        for word in inappropriate_words:
+            if word in message_lower:
+                raise ValidationError(_('Message contains inappropriate content.'))
+        
+        return message
+    
+    def clean_age(self):
+        """
+        Validate age field.
+        Ensures age is within reasonable range.
+        """
+        age = self.cleaned_data.get('age')
+        if not age:
+            raise ValidationError(_('Age is required.'))
+        
+        # Additional validation beyond the field constraints
+        if age < 1:
+            raise ValidationError(_('Age must be at least 1.'))
+        
+        if age > 120:
+            raise ValidationError(_('Age must be less than 120.'))
+        
+        return age
+    
+    def clean(self):
+        """
+        Cross-field validation.
+        Performs validation that requires multiple fields.
+        """
+        cleaned_data = super().clean()
+        
+        # Example: Check if name and email seem consistent
+        name = cleaned_data.get('name')
+        email = cleaned_data.get('email')
+        
+        if name and email:
+            # Basic check: if name contains numbers, it might be invalid
+            if any(char.isdigit() for char in name):
+                raise ValidationError(_('Name should not contain numbers.'))
+        
+        return cleaned_data
