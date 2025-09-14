@@ -4,7 +4,6 @@ from django.utils.translation import gettext_lazy as _
 from .models import CustomUser, Book, BookReview, ReadingList, UserProfile
 
 
-@admin.register(CustomUser)
 class CustomUserAdmin(BaseUserAdmin):
     """
     Admin configuration for the CustomUser model.
@@ -90,3 +89,7 @@ class UserProfileAdmin(admin.ModelAdmin):
     search_fields = ('user__email', 'bio', 'favorite_genres')
     readonly_fields = ('created_at', 'updated_at')
     raw_id_fields = ('user',)
+
+
+# Register the CustomUser model with the custom admin class
+admin.site.register(CustomUser, CustomUserAdmin)
