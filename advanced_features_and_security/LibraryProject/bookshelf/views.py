@@ -11,7 +11,7 @@ from django.utils.html import escape
 from django.core.paginator import Paginator
 import logging
 from .models import Book, BookReview, ReadingList, UserProfile
-from .forms import SecureBookForm, SecureReviewForm, SecureReadingListForm, SecureSearchForm
+from .forms import SecureBookForm, SecureReviewForm, SecureReadingListForm, SecureSearchForm, ExampleForm
 
 # Security logger
 security_logger = logging.getLogger('security')
@@ -287,11 +287,13 @@ def form_example(request):
     book_form = SecureBookForm(user=request.user if request.user.is_authenticated else None)
     review_form = SecureReviewForm(user=request.user if request.user.is_authenticated else None)
     reading_list_form = SecureReadingListForm(user=request.user if request.user.is_authenticated else None)
+    example_form = ExampleForm()
     
     return render(request, 'bookshelf/form_example.html', {
         'book_form': book_form,
         'review_form': review_form,
         'reading_list_form': reading_list_form,
+        'example_form': example_form,
     })
 
 
