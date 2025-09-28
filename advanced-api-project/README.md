@@ -74,4 +74,17 @@ Implementation:
 - `search_fields = ['title','author__name']`
 - `ordering_fields = ['title','publication_year','id']`
 
+## Testing
+
+Tests live in `api/test_views.py` and cover:
+- CRUD operations for `Book` endpoints
+- Permission behavior (public read, auth-only write)
+- Filtering, searching, ordering on the list endpoint
+
+Run tests:
+```bash
+. .venv/bin/activate
+python manage.py test api -v 2
+```
+
 
