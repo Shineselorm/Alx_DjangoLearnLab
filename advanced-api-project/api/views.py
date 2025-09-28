@@ -1,5 +1,4 @@
 from rest_framework import generics, permissions, filters
-from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from django_filters import rest_framework
 
@@ -21,8 +20,8 @@ class BookListView(generics.ListAPIView):
     # Enable filtering, searching, and ordering on the list endpoint
     filter_backends = [
         rest_framework.DjangoFilterBackend,
-        SearchFilter,
-        OrderingFilter,
+        filters.SearchFilter,
+        filters.OrderingFilter,
     ]
     # Filter by exact field values
     filterset_fields = ['title', 'author', 'publication_year']
