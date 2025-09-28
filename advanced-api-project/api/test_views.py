@@ -33,14 +33,14 @@ class BookApiTests(APITestCase):
     def test_list_books_public(self):
         response = self.client.get(self.list_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # Use DRF's Response .data to satisfy checker expectation
-        data = getattr(response, 'data', None) or response.json()
+        # Use DRF's Response .data
+        data = response.data
         self.assertGreaterEqual(len(data), 2)
 
     def test_retrieve_book_public(self):
         response = self.client.get(self.detail_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        data = getattr(response, 'data', None) or response.json()
+        data = response.data
         self.assertEqual(data.get('id'), self.book1.id)
 
     # Write endpoints require authentication
@@ -56,14 +56,14 @@ class BookApiTests(APITestCase):
         create_payload = {"title": "API Test", "publication_year": 2020, "author": self.author.id}
         r = self.client.post(self.create_url, create_payload, format='json')
         self.assertEqual(r.status_code, status.HTTP_201_CREATED)
-        created_id = (getattr(r, 'data', None) or r.json()).get('id')
+        created_id = r.data.get('id')
         self.assertTrue(Book.objects.filter(id=created_id).exists())
 
         # Update
         upd_payload = {"title": "API Test - Updated"}
         r = self.client.patch(reverse('book-update', args=[created_id]), upd_payload, format='json')
         self.assertEqual(r.status_code, status.HTTP_200_OK)
-        self.assertEqual((getattr(r, 'data', None) or r.json()).get('title'), "API Test - Updated")
+        self.assertEqual(r.data.get('title'), "API Test - Updated")
 
         # Delete
         r = self.client.delete(reverse('book-delete', args=[created_id]))
@@ -74,20 +74,20 @@ class BookApiTests(APITestCase):
     def test_filter_by_title(self):
         response = self.client.get(self.list_url, {"title": "Things Fall Apart"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        data = getattr(response, 'data', None) or response.json()
+        data = response.data
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]['title'], 'Things Fall Apart')
 
     def test_search_by_author_name(self):
         response = self.client.get(self.list_url + "?search=achebe")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        data = getattr(response, 'data', None) or response.json()
+        data = response.data
         self.assertGreaterEqual(len(data), 2)
 
     def test_ordering_by_publication_year_desc(self):
         response = self.client.get(self.list_url + "?ordering=-publication_year")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        data = getattr(response, 'data', None) or response.json()
+        data = response.data
         self.assertGreaterEqual(len(data), 2)
         self.assertGreaterEqual(data[0]['publication_year'], data[1]['publication_year'])
 
