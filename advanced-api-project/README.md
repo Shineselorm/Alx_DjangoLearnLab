@@ -61,4 +61,17 @@ curl -s -u apiuser:apipass123 -X DELETE \
 - The nested relationship between `Author` and `Book` is handled via the `AuthorSerializer` which includes a nested, read-only list of `Book` entries.
 - Views live in `api/views.py`, routes in `api/urls.py`, and are included at `advanced_api_project/urls.py` under the `/api/` prefix.
 
+## Filtering, Searching, and Ordering
+
+`GET /api/books/` supports query params:
+- Filtering: `?title=Things%20Fall%20Apart&publication_year=1958&author=1`
+- Searching: `?search=achebe` (searches `title` and related `author__name`)
+- Ordering: `?ordering=title` or `?ordering=-publication_year`
+
+Implementation:
+- Backends: `DjangoFilterBackend`, `SearchFilter`, `OrderingFilter`
+- `filterset_fields = ['title','author','publication_year']`
+- `search_fields = ['title','author__name']`
+- `ordering_fields = ['title','publication_year','id']`
+
 
