@@ -4,8 +4,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.db.models import Q
 from .forms import RegistrationForm, ProfileForm, PostForm, CommentForm
-from .models import Post, Comment
+from .models import Post, Comment, Tag
 
 
 def home(request):
@@ -63,7 +64,9 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.author = self.request.user
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        form.save_tags(self.object)
+        return response
 
 
 class AuthorRequiredMixin(UserPassesTestMixin):
@@ -77,7 +80,10 @@ class PostUpdateView(LoginRequiredMixin, AuthorRequiredMixin, UpdateView):
     form_class = PostForm
     template_name = 'blog/post_form.html'
     success_url = reverse_lazy('blog:post_list')
-
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        form.save_tags(self.object)
+        return response
 
 class PostDeleteView(LoginRequiredMixin, AuthorRequiredMixin, DeleteView):
     model = Post
@@ -123,5 +129,27 @@ class CommentDeleteView(LoginRequiredMixin, CommentAuthorRequiredMixin, DeleteVi
 
     def get_success_url(self):
         return reverse_lazy('blog:post_detail', kwargs={ 'pk': self.object.post.pk })
+
+
+class TagPostListView(ListView):
+    template_name = 'blog/post_list.html'
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        self.tag = Tag.objects.get(name=self.kwargs['tag_name'])
+        return self.tag.posts.order_by('-published_date').select_related('author')
+
+
+class SearchView(ListView):
+    template_name = 'blog/search_results.html'
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        query = self.request.GET.get('q', '').strip()
+        if not query:
+            return Post.objects.none()
+        return Post.objects.filter(
+            Q(title__icontains=query) | Q(content__icontains=query) | Q(tags__name__icontains=query)
+        ).distinct().order_by('-published_date').select_related('author')
 
 # Create your views here.

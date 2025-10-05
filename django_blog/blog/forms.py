@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Post, Comment
+from .models import Post, Comment, Tag
 
 
 class RegistrationForm(UserCreationForm):
@@ -26,14 +26,33 @@ class ProfileForm(forms.ModelForm):
 
 
 class PostForm(forms.ModelForm):
+    tags_csv = forms.CharField(required=False, help_text='Comma-separated tags')
+
     class Meta:
         model = Post
         fields = ['title', 'content']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            existing = ', '.join(t.name for t in self.instance.tags.all())
+            self.fields['tags_csv'].initial = existing
+
+    def save_tags(self, post: Post):
+        tags_str = self.cleaned_data.get('tags_csv', '')
+        names = [t.strip() for t in tags_str.split(',') if t.strip()]
+        tag_objs = []
+        for name in names:
+            tag, _ = Tag.objects.get_or_create(name=name)
+            tag_objs.append(tag)
+        post.tags.set(tag_objs)
 
 
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ['content']
+
+    # No tag save here; comments do not manage tags
 
 
