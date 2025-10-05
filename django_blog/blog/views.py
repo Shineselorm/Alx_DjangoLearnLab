@@ -22,7 +22,7 @@ def register(request):
             return redirect('login')
     else:
         form = RegistrationForm()
-    return render(request, 'auth/register.html', { 'form': form })
+    return render(request, 'blog/register.html', { 'form': form })
 
 
 @login_required
