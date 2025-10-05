@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
 {% block title %}Register{% endblock %}
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
 {% block content %}
   <h2>Create an account</h2>
   <form method="post">
@@ -7,6 +10,9 @@
     {{ form.as_p }}
     <button type="submit">Register</button>
   </form>
+  {% block scripts %}
+    <script src="{% static 'js/auth.js' %}"></script>
+  {% endblock %}
 {% endblock %}
 
 
