@@ -11,9 +11,10 @@
     {{ form.as_p }}
     <button type="submit">Register</button>
   </form>
-  {% block scripts %}
-    <script src="{% static 'blog/js/register.js' %}"></script>
-  {% endblock %}
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'blog/js/register.js' %}"></script>
 {% endblock %}
 
 
