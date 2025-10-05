@@ -6,9 +6,9 @@
     {% csrf_token %}
     {{ form.as_p }}
     <p>
-      <label for="id_tags_csv">Tags (comma-separated)</label><br>
-      {{ form.tags_csv }}
-      {% if form.tags_csv.help_text %}<small>{{ form.tags_csv.help_text }}</small>{% endif %}
+      <label for="id_tags">Tags</label><br>
+      {{ form.tags }}
+      {% if form.tags.help_text %}<small>{{ form.tags.help_text }}</small>{% endif %}
     </p>
     <button type="submit">Save</button>
   </form>

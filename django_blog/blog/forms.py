@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Post, Comment, Tag
+from taggit.forms import TagWidget
 
 
 class RegistrationForm(UserCreationForm):
@@ -26,20 +27,23 @@ class ProfileForm(forms.ModelForm):
 
 
 class PostForm(forms.ModelForm):
-    tags_csv = forms.CharField(required=False, help_text='Comma-separated tags')
+    tags = forms.CharField(required=False, help_text='Comma-separated tags', widget=TagWidget())
 
     class Meta:
         model = Post
-        fields = ['title', 'content']
+        fields = ['title', 'content', 'tags']
+        widgets = {
+            'tags': TagWidget(),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
             existing = ', '.join(t.name for t in self.instance.tags.all())
-            self.fields['tags_csv'].initial = existing
+            self.fields['tags'].initial = existing
 
     def save_tags(self, post: Post):
-        tags_str = self.cleaned_data.get('tags_csv', '')
+        tags_str = self.cleaned_data.get('tags', '')
         names = [t.strip() for t in tags_str.split(',') if t.strip()]
         tag_objs = []
         for name in names:
