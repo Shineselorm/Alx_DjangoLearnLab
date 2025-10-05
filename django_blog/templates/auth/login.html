@@ -2,7 +2,7 @@
 {% load static %}
 {% block title %}Login{% endblock %}
 {% block head %}
-  <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+  <link rel="stylesheet" href="{% static 'blog/css/login.css' %}">
 {% endblock %}
 {% block content %}
   <h2>Login</h2>
@@ -11,6 +11,9 @@
     {{ form.as_p }}
     <button type="submit">Login</button>
   </form>
+{% endblock %}
+{% block scripts %}
+  <script src="{% static 'blog/js/login.js' %}"></script>
 {% endblock %}
 
 

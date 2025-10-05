@@ -1,0 +1,10 @@
+/* Styles specific to the login page */
+form {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 420px;
+}
+button {
+  padding: 0.5rem 0.75rem;
+}
+
