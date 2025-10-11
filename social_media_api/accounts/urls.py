@@ -21,6 +21,8 @@ urlpatterns = [
     
     # Follow/Unfollow endpoints
     path('follow/', views.FollowUserView.as_view(), name='follow'),
+    path('follow/<int:user_id>/', views.FollowUserByIdView.as_view(), name='follow-user'),
+    path('unfollow/<int:user_id>/', views.UnfollowUserByIdView.as_view(), name='unfollow-user'),
     path('followers/', views.FollowersListView.as_view(), name='followers'),
     path('following/', views.FollowingListView.as_view(), name='following'),
 ]

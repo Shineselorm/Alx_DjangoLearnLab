@@ -3,16 +3,19 @@ Views for Posts and Comments functionality.
 Implements CRUD operations with proper permissions and filtering.
 """
 
-from rest_framework import viewsets, permissions, filters, status
+from rest_framework import viewsets, permissions, filters, status, generics
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Q
+from django.contrib.auth import get_user_model
 from .models import Post, Comment
 from .serializers import (
     PostSerializer,
     PostListSerializer,
     CommentSerializer
 )
+
+User = get_user_model()
 
 
 class IsAuthorOrReadOnly(permissions.BasePermission):
@@ -178,4 +181,58 @@ class CommentViewSet(viewsets.ModelViewSet):
         
         serializer = self.get_serializer(comments, many=True)
         return Response(serializer.data)
+
+
+class FeedView(generics.ListAPIView):
+    """
+    API endpoint for viewing feed of posts from followed users.
+    
+    GET /api/feed/
+    Headers: Authorization: Token <token>
+    
+    Returns: Posts from users that the authenticated user follows,
+             ordered by creation date (most recent first)
+    """
+    serializer_class = PostListSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        """
+        Get posts from users that the current user follows.
+        Returns posts ordered by creation date, most recent first.
+        """
+        # Get the current user
+        current_user = self.request.user
+        
+        # Get all users that the current user is following
+        following_users = current_user.following.all()
+        
+        # Get posts from those users, ordered by creation date (most recent first)
+        # Using following.all() which returns users the current user follows
+        feed_posts = Post.objects.filter(
+            author__in=following_users
+        ).select_related('author').prefetch_related('comments').order_by('-created_at')
+        
+        return feed_posts
+    
+    def list(self, request, *args, **kwargs):
+        """
+        Override list to provide custom response with additional context.
+        """
+        queryset = self.filter_queryset(self.get_queryset())
+        following_count = request.user.following.count()
+        
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            response = self.get_paginated_response(serializer.data)
+            response.data['following_count'] = following_count
+            return response
+        
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({
+            'count': queryset.count(),
+            'following_count': following_count,
+            'results': serializer.data
+        })
 

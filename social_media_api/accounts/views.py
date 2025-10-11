@@ -260,3 +260,71 @@ class FollowingListView(generics.ListAPIView):
         return self.request.user.following.all()
 
 
+class FollowUserByIdView(APIView):
+    """
+    API endpoint for following a specific user by their ID.
+    
+    POST /api/accounts/follow/<user_id>/
+    Headers: Authorization: Token <token>
+    
+    Returns: Success message
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request, user_id):
+        """Follow a specific user."""
+        user_to_follow = get_object_or_404(User, pk=user_id)
+        
+        # Check if trying to follow self
+        if user_to_follow == request.user:
+            return Response({
+                'error': 'You cannot follow yourself.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Follow the user
+        request.user.follow(user_to_follow)
+        
+        return Response({
+            'message': f'You are now following {user_to_follow.username}',
+            'following': True,
+            'user': {
+                'id': user_to_follow.id,
+                'username': user_to_follow.username
+            }
+        }, status=status.HTTP_200_OK)
+
+
+class UnfollowUserByIdView(APIView):
+    """
+    API endpoint for unfollowing a specific user by their ID.
+    
+    POST /api/accounts/unfollow/<user_id>/
+    Headers: Authorization: Token <token>
+    
+    Returns: Success message
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request, user_id):
+        """Unfollow a specific user."""
+        user_to_unfollow = get_object_or_404(User, pk=user_id)
+        
+        # Check if trying to unfollow self
+        if user_to_unfollow == request.user:
+            return Response({
+                'error': 'You cannot unfollow yourself.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Unfollow the user
+        request.user.unfollow(user_to_unfollow)
+        
+        return Response({
+            'message': f'You have unfollowed {user_to_unfollow.username}',
+            'following': False,
+            'user': {
+                'id': user_to_unfollow.id,
+                'username': user_to_unfollow.username
+            }
+        }, status=status.HTTP_200_OK)
+
+

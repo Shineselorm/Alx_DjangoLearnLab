@@ -16,10 +16,18 @@ A robust REST API for a social media platform built with Django and Django REST 
   - List all users
 
 - **Social Networking**
-  - Follow/Unfollow users
+  - Follow/Unfollow users (generic and by user ID)
   - View followers list
   - View following list
   - Follower count tracking
+  - **Personalized Feed** - View posts from followed users
+
+- **Posts & Comments**
+  - Create, read, update, and delete posts
+  - Comment on posts
+  - Search and filter posts
+  - Pagination support
+  - Author-only editing permissions
 
 ## Technology Stack
 
@@ -42,6 +50,16 @@ social_media_api/
 │   ├── views.py             # API views
 │   ├── urls.py              # URL routing
 │   └── tests.py             # Unit tests
+├── posts/                     # Posts and Comments functionality
+│   ├── migrations/           # Database migrations
+│   ├── __init__.py
+│   ├── admin.py             # Django admin configuration
+│   ├── apps.py              # App configuration
+│   ├── models.py            # Post and Comment models
+│   ├── serializers.py       # DRF serializers
+│   ├── views.py             # API views (includes Feed)
+│   ├── urls.py              # URL routing
+│   └── tests.py             # Unit tests
 ├── social_media_api/         # Project settings
 │   ├── __init__.py
 │   ├── settings.py          # Django settings
@@ -49,7 +67,10 @@ social_media_api/
 │   ├── asgi.py
 │   └── wsgi.py
 ├── manage.py                 # Django management script
-└── README.md                 # This file
+├── README.md                 # This file
+├── API_TESTING_GUIDE.md      # API testing documentation
+├── FOLLOW_AND_FEED_DOCUMENTATION.md  # Follow & Feed docs
+└── FOLLOW_FEED_IMPLEMENTATION_SUMMARY.md  # Implementation summary
 ```
 
 ## Installation & Setup
@@ -295,6 +316,76 @@ The API will be available at `http://127.0.0.1:8000/`
 - **Method:** `GET`
 - **Authentication:** Required (Token)
 - **Headers:** `Authorization: Token <your_token>`
+
+#### 10. Follow User by ID
+- **URL:** `/api/accounts/follow/<user_id>/`
+- **Method:** `POST`
+- **Authentication:** Required (Token)
+- **Headers:** `Authorization: Token <your_token>`
+- **Response (200 OK):**
+```json
+{
+  "message": "You are now following janedoe",
+  "following": true,
+  "user": {
+    "id": 2,
+    "username": "janedoe"
+  }
+}
+```
+
+#### 11. Unfollow User by ID
+- **URL:** `/api/accounts/unfollow/<user_id>/`
+- **Method:** `POST`
+- **Authentication:** Required (Token)
+- **Headers:** `Authorization: Token <your_token>`
+- **Response (200 OK):**
+```json
+{
+  "message": "You have unfollowed janedoe",
+  "following": false,
+  "user": {
+    "id": 2,
+    "username": "janedoe"
+  }
+}
+```
+
+### Feed Endpoint
+
+#### 12. View Personalized Feed
+- **URL:** `/api/feed/`
+- **Method:** `GET`
+- **Authentication:** Required (Token)
+- **Headers:** `Authorization: Token <your_token>`
+- **Description:** Returns posts from users you follow, ordered by creation date (newest first)
+- **Response (200 OK):**
+```json
+{
+  "count": 25,
+  "next": "http://127.0.0.1:8000/api/feed/?page=2",
+  "previous": null,
+  "following_count": 15,
+  "results": [
+    {
+      "id": 42,
+      "author": {
+        "id": 2,
+        "username": "janedoe",
+        "first_name": "Jane",
+        "last_name": "Doe",
+        "profile_picture": null
+      },
+      "title": "My Latest Post",
+      "content": "This is the content of my post...",
+      "created_at": "2025-10-11T12:00:00Z",
+      "updated_at": "2025-10-11T12:00:00Z",
+      "comment_count": 5
+    },
+    ...
+  ]
+}
+```
 
 ## Testing with Postman
 
