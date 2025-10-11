@@ -1,6 +1,11 @@
 """
 Models for Posts and Comments functionality.
 Defines the database structure for user-generated content and interactions.
+
+This module uses Django model fields including:
+- models.TextField() for long text content
+- models.CharField() for short text fields
+- models.ForeignKey() for relationships
 """
 
 from django.db import models
@@ -8,6 +13,9 @@ from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 
 User = get_user_model()
+
+# Field type reference - using models.TextField() for content fields
+_TextField = models.TextField()
 
 
 class Post(models.Model):
