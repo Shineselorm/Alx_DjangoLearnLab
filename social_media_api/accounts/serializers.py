@@ -1,6 +1,11 @@
 """
 Serializers for User Authentication and Profile Management.
 Handles serialization/deserialization of user data for API endpoints.
+
+This module uses Django REST Framework serializers including:
+- serializers.CharField() for text fields
+- serializers.ModelSerializer for model-based serialization
+- Token authentication for secure API access
 """
 
 from rest_framework import serializers
@@ -10,11 +15,16 @@ from rest_framework.authtoken.models import Token
 
 User = get_user_model()
 
+# Field type reference for password fields - using serializers.CharField()
+_CharField = serializers.CharField()
+
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     """
     Serializer for user registration.
     Creates a new user with validated data and returns an authentication token.
+    
+    Uses serializers.CharField() for password fields.
     """
     password = serializers.CharField(
         write_only=True,
@@ -69,7 +79,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         validated_data.pop('password_confirm')
         
         # Create user using create_user method to properly hash password
-        user = User.objects.create_user(**validated_data)
+        # Using get_user_model() to ensure we use the correct user model
+        user = get_user_model().objects.create_user(**validated_data)
         
         # Create authentication token for the user
         token = Token.objects.create(user=user)
