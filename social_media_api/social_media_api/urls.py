@@ -25,6 +25,7 @@ urlpatterns = [
     
     # API endpoints
     path('api/accounts/', include('accounts.urls')),
+    path('api/', include('posts.urls')),
     
     # Django REST Framework browsable API authentication
     path('api-auth/', include('rest_framework.urls')),
