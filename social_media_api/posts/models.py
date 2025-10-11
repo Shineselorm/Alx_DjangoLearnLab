@@ -134,3 +134,51 @@ class Comment(models.Model):
         """String representation of the comment."""
         return f"Comment by {self.author.username} on {self.post.title}"
 
+
+class Like(models.Model):
+    """
+    Model representing a like on a post.
+    
+    Fields:
+    - user: User who liked the post
+    - post: The post that was liked
+    - created_at: Timestamp when the like was created
+    
+    Constraints:
+    - A user can only like a post once (unique_together)
+    """
+    
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='likes',
+        help_text=_('User who liked the post')
+    )
+    
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='likes',
+        help_text=_('Post that was liked')
+    )
+    
+    created_at = models.DateTimeField(
+        _('created at'),
+        auto_now_add=True,
+        help_text=_('Timestamp when the like was created')
+    )
+    
+    class Meta:
+        verbose_name = _('like')
+        verbose_name_plural = _('likes')
+        ordering = ['-created_at']
+        unique_together = ['user', 'post']  # A user can only like a post once
+        indexes = [
+            models.Index(fields=['post', '-created_at']),
+            models.Index(fields=['user']),
+        ]
+    
+    def __str__(self):
+        """String representation of the like."""
+        return f"{self.user.username} likes {self.post.title}"
+

@@ -5,7 +5,7 @@ Handles data serialization and validation for API endpoints.
 
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Post, Comment
+from .models import Post, Comment, Like
 
 User = get_user_model()
 
@@ -113,16 +113,64 @@ class PostListSerializer(serializers.ModelSerializer):
     """
     author = AuthorSerializer(read_only=True)
     comment_count = serializers.SerializerMethodField(read_only=True)
+    like_count = serializers.SerializerMethodField(read_only=True)
+    is_liked_by_user = serializers.SerializerMethodField(read_only=True)
     
     class Meta:
         model = Post
         fields = [
             'id', 'author', 'title', 'content',
-            'created_at', 'updated_at', 'comment_count'
+            'created_at', 'updated_at', 'comment_count',
+            'like_count', 'is_liked_by_user'
         ]
         read_only_fields = fields
     
     def get_comment_count(self, obj):
         """Return the number of comments on this post."""
         return obj.get_comment_count()
+    
+    def get_like_count(self, obj):
+        """Return the number of likes on this post."""
+        return obj.likes.count()
+    
+    def get_is_liked_by_user(self, obj):
+        """Check if the current user has liked this post."""
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.likes.filter(user=request.user).exists()
+        return False
+
+
+class LikeSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Like model.
+    Handles liking and unliking posts.
+    """
+    user = AuthorSerializer(read_only=True)
+    post_title = serializers.CharField(source='post.title', read_only=True)
+    
+    class Meta:
+        model = Like
+        fields = ['id', 'user', 'post', 'post_title', 'created_at']
+        read_only_fields = ['id', 'user', 'created_at']
+    
+    def validate(self, attrs):
+        """Validate that a user hasn't already liked this post."""
+        request = self.context.get('request')
+        post = attrs.get('post')
+        
+        if request and post:
+            # Check if user has already liked this post
+            if Like.objects.filter(user=request.user, post=post).exists():
+                raise serializers.ValidationError('You have already liked this post.')
+        
+        return attrs
+    
+    def create(self, validated_data):
+        """Create a new like with the authenticated user."""
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            validated_data['user'] = request.user
+        
+        return super().create(validated_data)
 

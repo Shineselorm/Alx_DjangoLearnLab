@@ -4,7 +4,7 @@ Customizes the Django admin interface for Post and Comment management.
 """
 
 from django.contrib import admin
-from .models import Post, Comment
+from .models import Post, Comment, Like
 
 
 @admin.register(Post)
@@ -61,4 +61,25 @@ class CommentAdmin(admin.ModelAdmin):
         return obj.content
     
     content_preview.short_description = 'Content'
+
+
+@admin.register(Like)
+class LikeAdmin(admin.ModelAdmin):
+    """Admin configuration for Like model."""
+    
+    list_display = ['id', 'user', 'post', 'created_at']
+    list_filter = ['created_at']
+    search_fields = ['user__username', 'post__title']
+    readonly_fields = ['created_at']
+    ordering = ['-created_at']
+    
+    fieldsets = (
+        ('Like Information', {
+            'fields': ('user', 'post')
+        }),
+        ('Timestamp', {
+            'fields': ('created_at',),
+            'classes': ('collapse',)
+        }),
+    )
 

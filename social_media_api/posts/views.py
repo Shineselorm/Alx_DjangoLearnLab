@@ -6,13 +6,17 @@ Implements CRUD operations with proper permissions and filtering.
 from rest_framework import viewsets, permissions, filters, status, generics
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from django.db.models import Q
 from django.contrib.auth import get_user_model
-from .models import Post, Comment
+from django.shortcuts import get_object_or_404
+from django.contrib.contenttypes.models import ContentType
+from .models import Post, Comment, Like
 from .serializers import (
     PostSerializer,
     PostListSerializer,
-    CommentSerializer
+    CommentSerializer,
+    LikeSerializer
 )
 
 User = get_user_model()
@@ -237,4 +241,105 @@ class FeedView(generics.ListAPIView):
             'following_count': following_count,
             'results': serializer.data
         })
+
+
+class LikePostView(APIView):
+    """
+    API endpoint for liking a post.
+    
+    POST /api/posts/<pk>/like/
+    Headers: Authorization: Token <token>
+    
+    Returns: Success message and creates notification
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request, pk):
+        """Like a post."""
+        post = get_object_or_404(Post, pk=pk)
+        
+        # Check if user already liked this post
+        existing_like = Like.objects.filter(user=request.user, post=post).first()
+        
+        if existing_like:
+            return Response({
+                'error': 'You have already liked this post.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create the like
+        like = Like.objects.create(user=request.user, post=post)
+        
+        # Create notification for post author (if not liking own post)
+        if post.author != request.user:
+            try:
+                from notifications.models import Notification
+                Notification.objects.create(
+                    recipient=post.author,
+                    actor=request.user,
+                    verb='liked your post',
+                    target_content_type=ContentType.objects.get_for_model(post),
+                    target_object_id=post.id
+                )
+            except Exception as e:
+                # Notification creation failed, but like succeeded
+                pass
+        
+        # Serialize and return
+        serializer = LikeSerializer(like, context={'request': request})
+        
+        return Response({
+            'message': f'You liked "{post.title}"',
+            'like': serializer.data,
+            'like_count': post.likes.count()
+        }, status=status.HTTP_201_CREATED)
+
+
+class UnlikePostView(APIView):
+    """
+    API endpoint for unliking a post.
+    
+    DELETE /api/posts/<pk>/unlike/
+    Headers: Authorization: Token <token>
+    
+    Returns: Success message
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request, pk):
+        """Unlike a post."""
+        post = get_object_or_404(Post, pk=pk)
+        
+        # Find the like
+        like = Like.objects.filter(user=request.user, post=post).first()
+        
+        if not like:
+            return Response({
+                'error': 'You have not liked this post.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Delete the like
+        like.delete()
+        
+        return Response({
+            'message': f'You unliked "{post.title}"',
+            'like_count': post.likes.count()
+        }, status=status.HTTP_200_OK)
+
+
+class PostLikesListView(generics.ListAPIView):
+    """
+    API endpoint for viewing all likes on a post.
+    
+    GET /api/posts/<pk>/likes/
+    Headers: Authorization: Token <token>
+    
+    Returns: List of users who liked the post
+    """
+    serializer_class = LikeSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    
+    def get_queryset(self):
+        """Return likes for the specified post."""
+        post_id = self.kwargs.get('pk')
+        return Like.objects.filter(post_id=post_id).select_related('user', 'post')
 

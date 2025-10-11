@@ -29,6 +29,14 @@ A robust REST API for a social media platform built with Django and Django REST 
   - Pagination support
   - Author-only editing permissions
 
+- **Likes & Notifications**
+  - Like and unlike posts
+  - View post likes
+  - Automatic notifications for likes
+  - Real-time notification system
+  - Mark notifications as read
+  - Unread notification count
+
 ## Technology Stack
 
 - **Django 5.2.6** - Web framework
@@ -55,9 +63,19 @@ social_media_api/
 │   ├── __init__.py
 │   ├── admin.py             # Django admin configuration
 │   ├── apps.py              # App configuration
-│   ├── models.py            # Post and Comment models
+│   ├── models.py            # Post, Comment, and Like models
 │   ├── serializers.py       # DRF serializers
-│   ├── views.py             # API views (includes Feed)
+│   ├── views.py             # API views (includes Feed and Likes)
+│   ├── urls.py              # URL routing
+│   └── tests.py             # Unit tests
+├── notifications/             # Notifications functionality
+│   ├── migrations/           # Database migrations
+│   ├── __init__.py
+│   ├── admin.py             # Django admin configuration
+│   ├── apps.py              # App configuration
+│   ├── models.py            # Notification model
+│   ├── serializers.py       # DRF serializers
+│   ├── views.py             # API views
 │   ├── urls.py              # URL routing
 │   └── tests.py             # Unit tests
 ├── social_media_api/         # Project settings
@@ -70,7 +88,9 @@ social_media_api/
 ├── README.md                 # This file
 ├── API_TESTING_GUIDE.md      # API testing documentation
 ├── FOLLOW_AND_FEED_DOCUMENTATION.md  # Follow & Feed docs
-└── FOLLOW_FEED_IMPLEMENTATION_SUMMARY.md  # Implementation summary
+├── FOLLOW_FEED_IMPLEMENTATION_SUMMARY.md  # Implementation summary
+├── LIKES_NOTIFICATIONS_DOCUMENTATION.md  # Likes & Notifications docs
+└── LIKES_NOTIFICATIONS_IMPLEMENTATION_SUMMARY.md  # Implementation summary
 ```
 
 ## Installation & Setup
