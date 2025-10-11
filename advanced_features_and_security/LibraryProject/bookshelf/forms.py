@@ -14,6 +14,81 @@ from .models import Book, BookReview, ReadingList
 User = get_user_model()
 
 
+class ExampleForm(forms.Form):
+    """
+    Example form demonstrating Django security best practices.
+    This form is used as a general-purpose example for CSRF protection and input validation.
+    """
+    
+    name = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your name',
+            'maxlength': '100',
+        }),
+        label=_('Name'),
+        help_text=_('Enter your full name'),
+    )
+    
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your email',
+        }),
+        label=_('Email'),
+        help_text=_('Enter a valid email address'),
+    )
+    
+    message = forms.CharField(
+        max_length=500,
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 4,
+            'placeholder': 'Enter your message',
+            'maxlength': '500',
+        }),
+        label=_('Message'),
+        help_text=_('Enter your message (maximum 500 characters)'),
+    )
+    
+    def clean_name(self):
+        """
+        Sanitize and validate name field.
+        Prevents XSS attacks through proper escaping.
+        """
+        name = self.cleaned_data.get('name')
+        if not name:
+            raise ValidationError(_('Name is required.'))
+        
+        # Remove any HTML tags and escape special characters
+        name = escape(name.strip())
+        
+        # Validate length
+        if len(name) < 2:
+            raise ValidationError(_('Name must be at least 2 characters long.'))
+        
+        return name
+    
+    def clean_message(self):
+        """
+        Sanitize and validate message field.
+        Prevents XSS attacks through proper escaping.
+        """
+        message = self.cleaned_data.get('message')
+        if not message:
+            raise ValidationError(_('Message is required.'))
+        
+        # Remove any HTML tags and escape special characters
+        message = escape(message.strip())
+        
+        # Validate length
+        if len(message) < 10:
+            raise ValidationError(_('Message must be at least 10 characters long.'))
+        
+        return message
+
+
 class SecureBookForm(forms.ModelForm):
     """
     Secure form for creating and editing books.
