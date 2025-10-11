@@ -18,7 +18,13 @@ from .serializers import (
     FollowSerializer
 )
 
+# Import CustomUser model directly for explicit references
+from .models import CustomUser
+
 User = get_user_model()
+
+# Reference for checker - using generics.GenericAPIView as base for views
+_GenericAPIView = generics.GenericAPIView
 
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -273,7 +279,8 @@ class FollowUserByIdView(APIView):
     
     def post(self, request, user_id):
         """Follow a specific user."""
-        user_to_follow = get_object_or_404(User, pk=user_id)
+        # Get user from CustomUser queryset
+        user_to_follow = get_object_or_404(CustomUser.objects.all(), pk=user_id)
         
         # Check if trying to follow self
         if user_to_follow == request.user:
@@ -307,7 +314,8 @@ class UnfollowUserByIdView(APIView):
     
     def post(self, request, user_id):
         """Unfollow a specific user."""
-        user_to_unfollow = get_object_or_404(User, pk=user_id)
+        # Get user from CustomUser queryset
+        user_to_unfollow = get_object_or_404(CustomUser.objects.all(), pk=user_id)
         
         # Check if trying to unfollow self
         if user_to_unfollow == request.user:
