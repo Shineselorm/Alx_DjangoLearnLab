@@ -1,0 +1,43 @@
+# Environment Variables Template
+# Copy this file to .env and fill in your actual values
+# NEVER commit .env file to version control
+
+# Django Settings
+SECRET_KEY=your-secret-key-here-change-this-in-production
+DEBUG=False
+ALLOWED_HOSTS=localhost,127.0.0.1,yourdomain.com
+
+# Database Configuration (PostgreSQL)
+DB_NAME=social_media_db
+DB_USER=postgres
+DB_PASSWORD=your-db-password
+DB_HOST=localhost
+DB_PORT=5432
+
+# Security Settings
+SECURE_SSL_REDIRECT=True
+
+# Email Configuration
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_HOST_USER=your-email@gmail.com
+EMAIL_HOST_PASSWORD=your-email-password
+DEFAULT_FROM_EMAIL=noreply@yourdomain.com
+
+# Redis (for caching)
+REDIS_URL=redis://127.0.0.1:6379/1
+
+# CORS Settings (if using separate frontend)
+CORS_ALLOWED_ORIGINS=http://localhost:3000,https://yourdomain.com
+
+# AWS S3 (optional - for media file storage)
+AWS_ACCESS_KEY_ID=your-aws-access-key
+AWS_SECRET_ACCESS_KEY=your-aws-secret-key
+AWS_STORAGE_BUCKET_NAME=your-bucket-name
+AWS_S3_REGION_NAME=us-east-1
+
+# Cloudinary (alternative for media files)
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+
