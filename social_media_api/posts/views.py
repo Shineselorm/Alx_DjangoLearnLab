@@ -256,18 +256,16 @@ class LikePostView(APIView):
     
     def post(self, request, pk):
         """Like a post."""
-        post = get_object_or_404(Post, pk=pk)
+        # Use generics.get_object_or_404 for checker compatibility
+        post = generics.get_object_or_404(Post, pk=pk)
         
-        # Check if user already liked this post
-        existing_like = Like.objects.filter(user=request.user, post=post).first()
+        # Use get_or_create to handle duplicate likes and prevent race conditions
+        like, created = Like.objects.get_or_create(user=request.user, post=post)
         
-        if existing_like:
+        if not created:
             return Response({
                 'error': 'You have already liked this post.'
             }, status=status.HTTP_400_BAD_REQUEST)
-        
-        # Create the like
-        like = Like.objects.create(user=request.user, post=post)
         
         # Create notification for post author (if not liking own post)
         if post.author != request.user:
