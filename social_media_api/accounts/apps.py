@@ -16,3 +16,4 @@ class AccountsConfig(AppConfig):
         # Import signals here if needed in the future
         pass
 
+

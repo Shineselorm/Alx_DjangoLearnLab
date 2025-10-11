@@ -259,3 +259,4 @@ class FollowingListView(generics.ListAPIView):
         """Return list of users that current user is following."""
         return self.request.user.following.all()
 
+

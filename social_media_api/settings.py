@@ -1,0 +1,1 @@
+/Users/sedziafa/Alx_DjangoLearnLab/social_media_api/social_media_api/settings.py

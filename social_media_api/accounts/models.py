@@ -85,3 +85,4 @@ class CustomUser(AbstractUser):
         """Check if this user is followed by another user."""
         return self.followers.filter(pk=user.pk).exists()
 
+
